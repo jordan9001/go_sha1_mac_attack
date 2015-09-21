@@ -110,9 +110,8 @@ func hash_block(block, old_hash []byte, other_len int) []byte {
 	return result
 }
 
-// So here is what you do
-// given key length and a message, pad it like SHA1 would if there was a key on front
-// You need a custom SHA1 thing, because you need to run the SHA on the last (new) block with the old Hash as the IV
+// We take the unknown key's length, original message, original hash in hex, and the message to be extended
+// Then we pad the message as it would have been, and add our message to the end, with a valid hash, without ever knowing the key
 func main() {
 	if len(os.Args) <= 3 {
 		fmt.Printf("Usage: %s <Key Length> \"<Original Message>\" \"<Original Hash hex>\" \"<Extension>\"\n", os.Args[0])
