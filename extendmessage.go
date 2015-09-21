@@ -13,6 +13,8 @@ func check(e error) {
 	}
 }
 
+// Adds correct SHA-1 style padding, pretending that there are key_len bytes in front of the msg_slice.
+// This way we can add padding, without knowing the prepended key.
 func add_padding(msg_slice []byte, key_len int) []byte {
 	var msg_len_bits uint64 = uint64((len(msg_slice) + key_len) * 8)
 	msg_slice = append(msg_slice, 0x80)
@@ -30,15 +32,18 @@ func add_padding(msg_slice []byte, key_len int) []byte {
 	return msg_slice
 }
 
+// Does a circular rotation
 func left_rotate(block uint32, amount uint) uint32 {
 	block = ((block << amount) | (block >> (32 - amount))) & 0xffffffff
 	return block
 }
 
+// changes a slice of 4 bytes to a uint32
 func b_to_i(block []byte) uint32 {
 	return (uint32(block[0]) << 24) | (uint32(block[1]) << 16) | (uint32(block[2]) << 8) | uint32(block[3])
 }
 
+// changes a uint32 to a slice of 4 bytes
 func i_to_b(i uint32) []byte {
 	block := make([]byte, 4)
 	block[0] = byte(i >> 24)
@@ -48,6 +53,7 @@ func i_to_b(i uint32) []byte {
 	return block
 }
 
+// runs a single round of SHA-1 on the part to be extended, using the original hash as the IV
 func hash_block(block, old_hash []byte, other_len int) []byte {
 	// Pad the block
 	// The total length at the end needs to show the whole message, so set keylen to the length of the message before the extension
